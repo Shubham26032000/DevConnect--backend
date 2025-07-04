@@ -20,6 +20,13 @@ spring:
             - name: Path
               args:
                 pattern: /posts/**
+        - id: ui-interaction-service
+          uri: lb://UI-INTERACTION-SERVICE
+          predicates:
+            - name: Path
+              args:
+                pattern: /ui/**
+
   config:
     import:
     - optional:configserver:http://localhost:8888

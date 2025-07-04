@@ -1,10 +1,10 @@
-package com.devconnect.search_service;
+package com.devconnect.ui_interaction_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SearchServiceApplicationTests {
+class UiInteractionServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
