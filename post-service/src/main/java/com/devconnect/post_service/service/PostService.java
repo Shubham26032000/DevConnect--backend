@@ -3,23 +3,23 @@ package com.devconnect.post_service.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.devconnect.post_service.entity.Post;
+import com.devconnect.post_service.exception.UserNotFoundException;
 import com.devconnect.post_service.repository.PostRepository;
 
 @Service
 public class PostService {
 
 	private PostRepository postRepository;
-	
-	@Autowired
+
 	private UserClient userClient;
-	
-	public PostService(PostRepository postRepository) {
+
+	public PostService(PostRepository postRepository, UserClient userClient) {
 		super();
 		this.postRepository = postRepository;
+		this.userClient = userClient;
 	}
 
 	public List<Post> getAllPost() {
@@ -44,13 +44,13 @@ public class PostService {
 		return false;
 	}
 
-	public Post updatePost(long postId,Post post, long userId) {
+	public Post updatePost(long postId, Post post, long userId) {
 		Optional<Post> postOptional = postRepository.findById(postId);
-		if(postOptional.isPresent() && isValidUser(userId) && postOptional.get().getUserId() == userId) {
+		if (postOptional.isPresent() && isValidUser(userId) && postOptional.get().getUserId() == userId) {
 			Post postToUp = postOptional.get();
-			if(post.getTitle() != null)
+			if (post.getTitle() != null)
 				postToUp.setTitle(post.getTitle());
-			if(post.getContent() != null)
+			if (post.getContent() != null)
 				postToUp.setContent(post.getContent());
 			return postRepository.save(postToUp);
 		}
@@ -58,15 +58,15 @@ public class PostService {
 	}
 
 	public boolean createPost(Post post, long userId) {
-		if (isValidUser(userId)) {
-			post.setUserId(userId);
-			return postRepository.save(post) != null;
-		}
-		throw new RuntimeException("Invalid user id");
+		isValidUser(userId);
+		post.setUserId(userId);
+		return postRepository.save(post) != null;
 	}
-	
 
 	private boolean isValidUser(long userId) {
-		return userClient.validateUser(userId);
+		boolean isUserExist = userClient.validateUser(userId);
+		if(!isUserExist)
+			throw new UserNotFoundException("User not found with specified ID");
+		return isUserExist;
 	}
 }

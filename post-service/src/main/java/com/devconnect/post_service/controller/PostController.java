@@ -1,7 +1,8 @@
 package com.devconnect.post_service.controller;
 
-import java.util.List;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devconnect.post_service.entity.Post;
+import com.devconnect.post_service.exception.UserServiceNotAvailableException;
 import com.devconnect.post_service.service.PostService;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 @RequestMapping("/posts")
@@ -27,32 +31,38 @@ public class PostController {
 	}
 	
 	@PostMapping("/create")
-	public boolean createPost(@RequestBody Post post,@RequestParam("userId")long userId) {
-		return this.postService.createPost(post,userId);
+	@CircuitBreaker(name="userServiceCB",fallbackMethod = "fallback")
+	public ResponseEntity<Object> createPost(@RequestBody Post post,@RequestParam("userId")long userId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.createPost(post,userId));
 	}
 	
 	@PutMapping("/update/{postId}")
-	public Post updatePost(@PathVariable long postId,@RequestBody Post post, @RequestParam("userId")long userId) {
-		return this.postService.updatePost(postId,post,userId);
+	public ResponseEntity<Object> updatePost(@PathVariable long postId,@RequestBody Post post, @RequestParam("userId")long userId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.updatePost(postId,post,userId));
 	}
 	
 	@GetMapping("/{postId}")
-	public Post getPost(@PathVariable long postId) {
-		return this.postService.getPost(postId);
+	public ResponseEntity<Object> getPost(@PathVariable long postId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.getPost(postId));
 	}
 	
 	@DeleteMapping("/{postId}")
-	public boolean deletePost(@PathVariable long postId, @RequestParam("userId") long userId) {
-		return this.postService.deletePost(postId,userId);
+	public ResponseEntity<Object> deletePost(@PathVariable long postId, @RequestParam("userId") long userId) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.deletePost(postId,userId));
 	}
 	
 	@GetMapping("/user-post")
-	public List<Post> getUsersPost(@RequestParam("userId")long userId){
-		return this.postService.getUsersPost(userId);
+	public ResponseEntity<Object> getUsersPost(@RequestParam("userId")long userId){
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.getUsersPost(userId));
 	}
 	
 	@GetMapping("/all")
-	public List<Post> getUsersPost(){
-		return this.postService.getAllPost();
+	public ResponseEntity<Object> getUsersPost(){
+		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.getAllPost());
 	}
+	
+	public ResponseEntity<Object> fallback(Post post,long userId, Throwable ex) {
+        // decide how to fail: 503, cached data, or just ‘false’
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("UserService is Down ....! ");
+    }
 }
