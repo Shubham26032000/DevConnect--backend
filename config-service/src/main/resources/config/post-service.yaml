@@ -1,0 +1,54 @@
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+
+shubham: "Shubham"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceCB:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-size: 10
+        sliding-window-type: count_based
+      userServiceCB2:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-size: 10
+        sliding-window-type: count_based
+      userServiceCBDelete:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-size: 10
+        sliding-window-type: count_based
+
+  ratelimiter:  
+    instances:
+      postRateLimitor:
+        limit-refresh-period: 2s
+        limit-for-period: 2
+        timeout-duration: 2s
+
+  retry:
+    instances:
+      getUserService:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
