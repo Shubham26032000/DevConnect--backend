@@ -1,12 +1,5 @@
 package com.devconnect.ui_interaction_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
 public class PostWithUser {
 	private Post post;
 	private User user;
