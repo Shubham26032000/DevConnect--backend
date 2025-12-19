@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devconnect.use_service.entity.User;
 import com.devconnect.use_service.service.UserService;
+import com.devconnect.use_service.dto.LoginDTO;
 
 @RestController
 @RequestMapping("/user")
@@ -24,8 +25,13 @@ public class UserController {
 	}
 	
 	@PostMapping("/create")
-	public boolean createUser(@RequestBody User user) {
+	public User createUser(@RequestBody User user) {
 		return this.userService.save(user);
+	}
+
+	@PostMapping("/login")
+	public User login(@RequestBody LoginDTO loginDTO){
+		return userService.loginUser(loginDTO);
 	}
 
 	@PutMapping("/update/{userId}")

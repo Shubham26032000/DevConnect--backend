@@ -6,4 +6,7 @@ import com.devconnect.use_service.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
 
+    User findByUsernameAndPassword(String username, String password);
+
+    User findByEmailAndPassword(String email, String password);
 }

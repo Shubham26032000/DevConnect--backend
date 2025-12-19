@@ -3,6 +3,7 @@ package com.devconnect.use_service.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.devconnect.use_service.dto.LoginDTO;
 import org.springframework.stereotype.Service;
 
 import com.devconnect.use_service.controller.UserController;
@@ -19,8 +20,8 @@ public class UserService {
 		this.userRepository = userRepository;
 	}
 
-	public boolean save(User user) {
-		return userRepository.save(user) != null;
+	public User save(User user) {
+		return userRepository.save(user);
 	}
 
 	public User updateUser(long userId, User user) {
@@ -49,8 +50,17 @@ public class UserService {
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
 	}
-	
-	
+
+	public User loginUser(LoginDTO loginDTO){
+		if(loginDTO.getUsername() != null){
+			return userRepository.findByUsernameAndPassword(loginDTO.getUsername(),loginDTO.getPassword());
+		}
+		if(loginDTO.getEmail() != null){
+			return userRepository.findByEmailAndPassword(loginDTO.getEmail(),loginDTO.getPassword());
+		}
+
+		throw new RuntimeException("User Not Found");
+	}
 	
 	
 	
