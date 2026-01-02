@@ -27,6 +27,7 @@ spring:
               args:
                 pattern: /ui/**
       globalcors:
+        add-to-simple-url-handler-mapping: true
         corsConfigurations:
           '[/**]':
             allowedOrigins: "http://localhost:5173"
