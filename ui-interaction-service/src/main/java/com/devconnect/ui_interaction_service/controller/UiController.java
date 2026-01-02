@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.devconnect.ui_interaction_service.dto.PostWithUser;
 import com.devconnect.ui_interaction_service.service.UiService;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/ui")
 public class UiController {
