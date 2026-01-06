@@ -2,6 +2,7 @@ package com.devconnect.ui_interaction_service.client;
 
 import java.util.List;
 
+import com.devconnect.ui_interaction_service.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.devconnect.ui_interaction_service.dto.Post;
 
-@FeignClient(name = "post-client", url = "http://localhost:9999/posts")
+@FeignClient(name = "post-client", url = "http://localhost:9999/posts",configuration = FeignConfig.class)
 public interface PostClient {
 	@GetMapping("/{postId}")
 	public Post getPost(@PathVariable long postId);
