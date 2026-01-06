@@ -2,6 +2,8 @@ package com.devconnect.use_service.controller;
 
 import java.util.List;
 
+import com.devconnect.use_service.dto.LoginRequest;
+import com.devconnect.use_service.dto.LoginSuccessResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.devconnect.use_service.entity.User;
 import com.devconnect.use_service.service.UserService;
-import com.devconnect.use_service.dto.LoginDTO;
+import com.devconnect.use_service.dto.CreateUserDto;
 
 @RestController
 @RequestMapping("/user")
@@ -25,13 +27,13 @@ public class UserController {
 	}
 	
 	@PostMapping("/create")
-	public User createUser(@RequestBody User user) {
+	public User createUser(@RequestBody CreateUserDto user) {
 		return this.userService.save(user);
 	}
 
 	@PostMapping("/login")
-	public User login(@RequestBody LoginDTO loginDTO){
-		return userService.loginUser(loginDTO);
+	public LoginSuccessResponse login(@RequestBody CreateUserDto createUserDto){
+		return userService.loginUser(createUserDto);
 	}
 
 	@PutMapping("/update/{userId}")
@@ -53,5 +55,10 @@ public class UserController {
 	public List<User> getUsers(){
 		return this.userService.getAllUsers();
 	}
-	
+
+	@PostMapping("/internal/validate")
+	public boolean validate(@RequestBody LoginRequest request) {
+		return userService.findByUsername(request);
+	}
+
 }
