@@ -3,24 +3,36 @@ package com.devconnect.use_service.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.devconnect.use_service.dto.LoginDTO;
+import com.devconnect.use_service.dto.CreateUserDto;
+import com.devconnect.use_service.dto.LoginRequest;
+import com.devconnect.use_service.dto.LoginSuccessResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.devconnect.use_service.controller.UserController;
 import com.devconnect.use_service.entity.User;
 import com.devconnect.use_service.repository.UserRepository;
+import org.springframework.ui.ModelMap;
 
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
 		super();
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
-	public User save(User user) {
+	public User save(CreateUserDto userDto) {
+		System.out.println(userDto.getPassword());
+		User user = new User();
+		user.setPassword(userDto.getPassword());
+		user.setEmail(userDto.getEmail());
+		user.setUsername(userDto.getUsername());
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
 	}
 
@@ -51,17 +63,35 @@ public class UserService {
 		return userRepository.findAll();
 	}
 
-	public User loginUser(LoginDTO loginDTO){
-		if(loginDTO.getUsername() != null){
-			return userRepository.findByUsernameAndPassword(loginDTO.getUsername(),loginDTO.getPassword());
-		}
-		if(loginDTO.getEmail() != null){
-			return userRepository.findByEmailAndPassword(loginDTO.getEmail(),loginDTO.getPassword());
+	public LoginSuccessResponse loginUser(CreateUserDto createUserDto) {
+
+		User user;
+
+		if (createUserDto.getUsername() != null) {
+			user = userRepository.findByUsername(createUserDto.getUsername())
+					.orElseThrow(() -> new RuntimeException("User not found"));
+		} else if (createUserDto.getEmail() != null) {
+			user = userRepository.findByEmail(createUserDto.getEmail())
+					.orElseThrow(() -> new RuntimeException("User not found"));
+		} else {
+			throw new RuntimeException("Username or email required");
 		}
 
-		throw new RuntimeException("User Not Found");
+		if (!passwordEncoder.matches(createUserDto.getPassword(), user.getPassword())) {
+			throw new RuntimeException("Invalid credentials");
+		}
+
+
+
+		return new LoginSuccessResponse(user.getId(),user.getUsername()); // TEMPORARY – will be changed to DTO
 	}
-	
-	
-	
+
+
+
+	public boolean findByUsername(LoginRequest request) {
+		Optional<User> userOp = userRepository.findByUsername(request.username());
+		User user = userOp.get();
+		return user != null &&
+				user.getPassword().equals(request.password());
+    }
 }
