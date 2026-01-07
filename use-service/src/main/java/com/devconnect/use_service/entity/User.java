@@ -1,5 +1,6 @@
 package com.devconnect.use_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +18,7 @@ public class User {
 	private String email;
 	@Column(unique = true)
 	private String username;
+	@JsonIgnore
 	private String password;
 
 	public long getId() {

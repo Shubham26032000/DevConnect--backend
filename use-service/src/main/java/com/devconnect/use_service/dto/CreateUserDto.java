@@ -1,8 +1,6 @@
 package com.devconnect.use_service.dto;
 
-import jakarta.persistence.Column;
-
-public class LoginDTO {
+public class CreateUserDto {
     private String email;
     private String username;
     private String password;
@@ -32,6 +30,6 @@ public class LoginDTO {
         this.password = password;
     }
 
-    public LoginDTO() {
+    public CreateUserDto() {
     }
 }
