@@ -27,7 +27,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/create")
-	public User createUser(@RequestBody CreateUserDto user) {
+	public LoginSuccessResponse createUser(@RequestBody CreateUserDto user) {
 		return this.userService.save(user);
 	}
 

@@ -26,15 +26,17 @@ public class UserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public User save(CreateUserDto userDto) {
+	public LoginSuccessResponse save(CreateUserDto userDto) {
 		System.out.println(userDto.getPassword());
 		User user = new User();
 		user.setPassword(userDto.getPassword());
 		user.setEmail(userDto.getEmail());
 		user.setUsername(userDto.getUsername());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		return userRepository.save(user);
-	}
+		User savedUser = userRepository.save(user);
+        return new LoginSuccessResponse(savedUser.getId(), savedUser.getUsername());
+
+    }
 
 	public User updateUser(long userId, User user) {
 		Optional<User> userOptional = userRepository.findById(userId);
