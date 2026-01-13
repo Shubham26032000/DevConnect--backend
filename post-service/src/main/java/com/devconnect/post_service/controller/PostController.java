@@ -1,18 +1,11 @@
 package com.devconnect.post_service.controller;
 
+import com.devconnect.post_service.dto.PostDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.devconnect.post_service.entity.Post;
 import com.devconnect.post_service.service.PostService;
@@ -20,14 +13,16 @@ import com.devconnect.post_service.service.PostService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 
 
 @RestController
 @RequestMapping("/posts")
 public class PostController {
 
-	private PostService postService;
+	private final PostService postService;
 	
 	@Value("${shubham}")
 	private String s;
@@ -37,10 +32,22 @@ public class PostController {
 		this.postService = postService;
 	}
 	
-	@PostMapping("/create")
-	@CircuitBreaker(name="userServiceCB",fallbackMethod = "fallbackCreate")
-	public ResponseEntity<Object> createPost(@RequestBody Post post,@RequestParam("userId")long userId) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.createPost(post,userId));
+	@PostMapping("/create" )
+//	@CircuitBreaker(name="userServiceCB",fallbackMethod = "fallbackCreate")
+	public ResponseEntity<?> createPost(@RequestParam long userId, @RequestPart("post") PostDto post, @RequestPart("image") MultipartFile image) {
+		System.out.println("Arrived here");
+        try {
+           return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.createPost(post,userId,image));
+        } catch (IOException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+	@GetMapping("/user")
+	public String ok(){
+//		System.out.println(postDto.getContent());
+
+		return "ok";
 	}
 	
 	@PutMapping("/update/{postId}")
@@ -72,7 +79,18 @@ public class PostController {
 	public ResponseEntity<Object> getUsersPost(){
 		return ResponseEntity.status(HttpStatus.CREATED).body(this.postService.getAllPost());
 	}
-	
+
+	@GetMapping("/{postId}/image")
+	public ResponseEntity<Object> getPostImage(@PathVariable long postId){
+		Post post = postService.findImage(postId);
+		try {
+			return ResponseEntity.ok()
+					.contentType(MediaType.valueOf(post.getPostImageType()))
+					.body(post.getPostImage());
+		}catch (Exception e){
+			return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	public ResponseEntity<Object> fallbackCreate(Post post,long userId, Throwable ex) {
         // decide how to fail: 503, cached data, or just ‘false’
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("UserService is Down ....! ");

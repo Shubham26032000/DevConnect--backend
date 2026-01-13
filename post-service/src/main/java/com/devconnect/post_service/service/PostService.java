@@ -1,13 +1,16 @@
 package com.devconnect.post_service.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.devconnect.post_service.dto.PostDto;
 import org.springframework.stereotype.Service;
 
 import com.devconnect.post_service.entity.Post;
 import com.devconnect.post_service.exception.UserNotFoundException;
 import com.devconnect.post_service.repository.PostRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PostService {
@@ -57,10 +60,16 @@ public class PostService {
 		throw new RuntimeException("Invalid postId or invalid userId related to post");
 	}
 
-	public boolean createPost(Post post, long userId) {
+	public boolean createPost(PostDto post, long userId, MultipartFile image) throws IOException {
 		isValidUser(userId);
-		post.setUserId(userId);
-		return postRepository.save(post) != null;
+		Post postToSave = new Post();
+		postToSave.setTitle(post.getTitle());
+		postToSave.setContent(post.getContent());
+		postToSave.setUserId(userId);
+		postToSave.setPostImage(image.getBytes());
+		postToSave.setPostImageType(image.getContentType());
+		postToSave.setPostImageName(image.getOriginalFilename());
+		return postRepository.save(postToSave) != null;
 	}
 
 	private boolean isValidUser(long userId) {
@@ -68,5 +77,13 @@ public class PostService {
 		if(!isUserExist)
 			throw new UserNotFoundException("User not found with specified ID");
 		return isUserExist;
+	}
+
+	public Post findImage(long postId) {
+		Optional<Post> postOptional = postRepository.findById(postId);
+		if(postOptional.isPresent()){
+			return postOptional.get();
+		}
+		throw new RuntimeException("Post not preset.");
 	}
 }

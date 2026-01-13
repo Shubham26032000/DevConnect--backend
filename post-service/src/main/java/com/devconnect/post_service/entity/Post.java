@@ -1,10 +1,6 @@
 package com.devconnect.post_service.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "posts")
@@ -15,7 +11,10 @@ public class Post {
 	private long id;
 	private String title;
 	private String content;
-
+	@Lob
+	private byte[] postImage;
+	private String postImageType;
+	private String postImageName;
 	private long userId;
 
 	public Post(long id, String title, String content, long userId) {
@@ -60,6 +59,30 @@ public class Post {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+
+	public byte[] getPostImage() {
+		return postImage;
+	}
+
+	public void setPostImage(byte[] postImage) {
+		this.postImage = postImage;
+	}
+
+	public String getPostImageType() {
+		return postImageType;
+	}
+
+	public void setPostImageType(String postImageType) {
+		this.postImageType = postImageType;
+	}
+
+	public String getPostImageName() {
+		return postImageName;
+	}
+
+	public void setPostImageName(String postImageName) {
+		this.postImageName = postImageName;
 	}
 
 	@Override
