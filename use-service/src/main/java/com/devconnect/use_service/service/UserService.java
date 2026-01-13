@@ -1,5 +1,6 @@
 package com.devconnect.use_service.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,12 +8,14 @@ import com.devconnect.use_service.dto.CreateUserDto;
 import com.devconnect.use_service.dto.LoginRequest;
 import com.devconnect.use_service.dto.LoginSuccessResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.devconnect.use_service.entity.User;
 import com.devconnect.use_service.repository.UserRepository;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserService {
@@ -26,9 +29,12 @@ public class UserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public LoginSuccessResponse save(CreateUserDto userDto) {
+	public LoginSuccessResponse save(CreateUserDto userDto, MultipartFile image) throws IOException {
 		System.out.println(userDto.getPassword());
 		User user = new User();
+		user.setImageName(image.getOriginalFilename());
+		user.setImageType(image.getContentType());
+		user.setProfileImage(image.getBytes());
 		user.setPassword(userDto.getPassword());
 		user.setEmail(userDto.getEmail());
 		user.setUsername(userDto.getUsername());
@@ -65,6 +71,7 @@ public class UserService {
 		return userRepository.findAll();
 	}
 
+	@Transactional
 	public LoginSuccessResponse loginUser(CreateUserDto createUserDto) {
 
 		User user;
@@ -96,4 +103,8 @@ public class UserService {
 		return user != null &&
 				user.getPassword().equals(request.password());
     }
+
+	public Optional<User> findById(long userId) {
+		return userRepository.findById(userId);
+	}
 }
